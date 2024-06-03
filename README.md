@@ -16,6 +16,12 @@ The module is developed on Odoo version 14.
 
 ## Prerequisites
 
+Rename module:
+
+```
+inbox4us.odoo.technical-test -> inbox4us_odoo_technical_test
+```
+
 This module require pyjwt and simplejson:
 
 ```bash
