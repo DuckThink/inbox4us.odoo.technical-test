@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hotel_booking_view_search" model="ir.ui.view">
+        <field name="name">hotel.booking.view.search</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <search string="Hotel Booking">
+
+                <field name="customer_id"/>
+                <field name="room_id"/>
+                <field name="check_in_date"/>
+                <field name="check_out_date"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Customer" name="group_customer" domain="[]" context="{'group_by': 'customer_id'}"/>
+                    <filter string="Room" name="group_room" domain="[]" context="{'group_by': 'room_id'}"/>
+                    <filter string="Check in date" name="group_check_in_date" domain="[]" context="{'group_by': 'check_in_date'}"/>
+                    <filter string="Check out date" name="group_check_out_date" domain="[]" context="{'group_by': 'check_out_date'}"/>
+                </group>
+           </search>
+        </field>
+    </record>
+
+    <record id="hotel_booking_view_tree" model="ir.ui.view">
+        <field name="name">hotel.booking.view.tree</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <tree string="Hotel Booking">
+                <field name="customer_id"/>
+                <field name="room_id"/>
+                <field name="check_in_date"/>
+                <field name="check_out_date"/>
+                <field name="total_amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hotel_booking_view_form" model="ir.ui.view">
+        <field name="name">hotel.booking.view.form</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Booking">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="customer_id"/>
+                            <field name="room_id"/>
+                        </group>
+                         <group>
+                            <field name="check_in_date"/>
+                            <field name="check_out_date"/>
+                            <field name="total_amount"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="action_hotel_booking" model="ir.actions.act_window">
+        <field name="name">Hotel Booking</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hotel.booking</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

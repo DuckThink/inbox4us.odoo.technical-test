@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_jwt_access_token,Read jwt access token,model_jwt_access_token,base.group_user,1,0,0,0
+access_hotel_booking,access model hotel booking,model_hotel_booking,base.group_user,1,1,1,1
+access_hotel_customer,access model hotel customer,model_hotel_customer,base.group_user,1,1,1,1
+access_hotel_room,access model hotel room,model_hotel_room,base.group_user,1,1,1,1
