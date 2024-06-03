@@ -1,5 +1,6 @@
 {
     'name': 'Inbox4us Hotel Booking Management',
+    'author': 'Nguyen Duc Thinh',
     'version': '1.0',
     'category': 'Hotel Management',
     'summary': 'Manage hotel room bookings and customers',
