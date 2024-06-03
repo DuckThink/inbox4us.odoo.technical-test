@@ -15,7 +15,7 @@ class Users(models.Model):
     def to_dict(self, single=True):
         res = []
         for u in self:
-            d = u.read(['email', 'name','company_id'])[0]
+            d = u.read(['email', 'name'])[0]
             res.append(d)
 
         return res[0] if single else res
