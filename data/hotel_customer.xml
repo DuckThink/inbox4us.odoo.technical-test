@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <data noupdate="1">
+
+        <record id="hotel_customer_demo_1" model="hotel.customer">
+            <field name="name">Thịnh</field>
+            <field name="email">a@gmail.com</field>
+            <field name="phone">111</field>
+        </record>
+
+        <record id="hotel_customer_demo_2" model="hotel.customer">
+            <field name="name">Hưng</field>
+            <field name="email">b@gmail.com</field>
+            <field name="phone">112</field>
+        </record>
+
+        <record id="hotel_customer_demo_3" model="hotel.customer">
+            <field name="name">My</field>
+            <field name="email">c@gmail.com</field>
+            <field name="phone">113</field>
+        </record>
+
+        <record id="hotel_customer_demo_4" model="hotel.customer">
+            <field name="name">Vũ</field>
+            <field name="email">d@gmail.com</field>
+            <field name="phone">115</field>
+        </record>
+
+        <record id="hotel_customer_demo_5" model="hotel.customer">
+            <field name="name">Nhật</field>
+            <field name="email">e@gmail.com</field>
+            <field name="phone">116</field>
+        </record>
+
+        <record id="hotel_customer_demo_6" model="hotel.customer">
+            <field name="name">Ngọc</field>
+            <field name="email">f@gmail.com</field>
+            <field name="phone">117</field>
+        </record>
+
+
+    </data>
+
+
+</odoo>

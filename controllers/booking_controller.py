@@ -83,7 +83,6 @@ class BookingController(http.Controller):
                 'check_in_date': checkin_date,
                 'check_out_date': checkout_date,
             })
-            request.env['hotel.room'].sudo().search([('id', '=', room_id)]).status = 'booked'
 
             return jwt_request.response({
                 'booking': booking.read()[0]

@@ -4,9 +4,12 @@
     'version': '1.0',
     'category': 'Hotel Management',
     'summary': 'Manage hotel room bookings and customers',
-    'depends': ['base'],
+    'depends': ['base', 'mail'],
     'data': [
         'security/ir.model.access.csv',
+        'data/hotel_room.xml',
+        'data/hotel_customer.xml',
+        'data/ir_cron.xml',
         'views/user_view.xml',
         'views/hotel_booking_view.xml',
         'views/hotel_customer_view.xml',

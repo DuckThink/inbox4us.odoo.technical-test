@@ -1,5 +1,7 @@
 from odoo import models, fields, api
+from datetime import datetime
 from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError
 
 
 class HotelBooking(models.Model):
@@ -19,13 +21,28 @@ class HotelBooking(models.Model):
                 num_nights = (booking.check_out_date - booking.check_in_date).days
                 booking.total_amount = booking.room_id.price_per_night * num_nights
     
-    # Check if check-in date is less than check-out date
-    @api.onchange('check_in_date', 'check_out_date')
-    def _onchange_dates(self):
-        if self.check_in_date and self.check_out_date:
-            if self.check_in_date >= self.check_out_date:
-                raise UserError('Check-in date must be less than Check-out date')
-            
+    # Check date in backend
+    @api.constrains('check_in_date', 'check_out_date')
+    def _validate_date(self):
+        for record in self:
+            if record.check_in_date >= record.check_out_date:
+                raise ValidationError(("Check-in date must be less than Check-out date"))
+
+    @api.model
+    def cron_update_room_status(self):
+        bookings = self.search([])
+        for booking in bookings:
+            if booking.check_out_date < datetime.now().date():
+                booking.room_id.status = 'available'
+
+    # When booking is created, set the room status to 'booked'
+    @api.model
+    def create(self, vals):
+        room = self.env['hotel.room'].browse(vals['room_id'])
+        if room.status == 'booked':
+            raise UserError('Room is not available')
+        room.status = 'booked'
+        return super(HotelBooking, self).create(vals)            
     
     # When booking is deleted, set the room status to 'available'
     def unlink(self):
