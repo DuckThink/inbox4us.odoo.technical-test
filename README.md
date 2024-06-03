@@ -70,7 +70,7 @@ Based on the SECRET_KEY to encode data and generate tokens.
 
 It will return the Token, user data, and status upon success.
 
-If successful, it will create a **user portal** on the Odoo server.
+If successful, it will create a **user portal** and hotel customer on the Odoo server.
 
 ### Login
 
@@ -91,6 +91,8 @@ Login authentication is based on the provided email and password. If authenticat
 User authentication is based on the provided token. If the token is valid, it will proceed to create a hotel booking and return the hotel booking data and status
 
 Only create a hotel booking if the room hotel status is 'available'.
+
+After successfully creating a hotel booking, the room status will change to 'booked'.
 
 ## Testing API
 
