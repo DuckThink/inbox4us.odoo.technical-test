@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class HotelBooking(models.Model):
@@ -17,6 +18,14 @@ class HotelBooking(models.Model):
             if booking.check_in_date and booking.check_out_date:
                 num_nights = (booking.check_out_date - booking.check_in_date).days
                 booking.total_amount = booking.room_id.price_per_night * num_nights
+    
+    @api.onchange('check_in_date', 'check_out_date')
+    def _onchange_dates(self):
+        if self.check_in_date and self.check_out_date:
+            if self.check_in_date >= self.check_out_date:
+                raise UserError('Check-in date must be less than Check-out date')
+            
+    
 
     def unlink(self):
         for booking in self:

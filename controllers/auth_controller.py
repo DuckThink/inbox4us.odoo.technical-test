@@ -75,9 +75,14 @@ class AuthController(http.Controller):
                         _logger.error("%s", e)
                         qcontext['error'] = _("Could not create a new account.")
                         jwt_request.response({'message': qcontext['error']}, status=400)
-                        
+            
             if user_sudo:
                 token = jwt_request.create_token(user_sudo, SECRET_KEY)
+                request.env['hotel.customer'].sudo().create({
+                    'email': user_sudo.email,
+                    'name': user_sudo.name,
+                    'phone': 'Need to update',
+                })
                 return jwt_request.response({
                     'user': user_sudo.to_dict(),
                     'token': token

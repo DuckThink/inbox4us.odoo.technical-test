@@ -1,7 +1,9 @@
 from odoo import http
 from odoo.http import request
+from datetime import datetime
 from functools import wraps
 from ..jwt_request import jwt_request
+from ..util import is_valid_date
 from ..controllers.auth_controller import SECRET_KEY
 
 import logging
@@ -9,15 +11,6 @@ _logger = logging.getLogger(__name__)
 
 
 class BookingController(http.Controller):
-
-    # @http.route('/api/bookings', type='json', auth='public', methods=['POST'])
-    # # @validate_request - TODO: handle request validation - Nice to have
-    # # @jwt_required - TODO: handle jwt token in the request
-    # def create_booking(self, **kwargs):
-    #     # TODO: need to handle authentication access token
-    #     # TODO: Implement booking creation logic
-    #     # Note: need to check availability of the room
-    #     pass
 
     def validate_request(f):
         """Decorators to ensure correct data is provided in the API requests."""
@@ -31,11 +24,17 @@ class BookingController(http.Controller):
             for key in required_params:
                 if not kwargs[key]:
                     return jwt_request.response({'message': 'Parameter %s cannot be empty' % key}, status=400)
-            if not request.env['hotel.room'].sudo().search([('id', '=', kwargs['room_id'])]):
+            room_id, customer_id, checkin_date, checkout_date = kwargs['room_id'], kwargs['customer_id'] \
+                                                                    ,kwargs['checkin_date'], kwargs['checkout_date']
+            if not request.env['hotel.room'].sudo().search([('id', '=', room_id)]):
                 return jwt_request.response({'message': 'Invalid room id'}, status=400)
-            if not request.env['hotel.customer'].sudo().search([('id', '=', kwargs['customer_id'])]):
+            if not request.env['hotel.customer'].sudo().search([('id', '=', customer_id)]):
                 return jwt_request.response({'message': 'Invalid customer id'}, status=400)
-            
+            if is_valid_date(checkin_date) and is_valid_date(checkout_date):
+                if checkin_date > checkout_date:
+                    return jwt_request.response({'message': 'Checkin date must be less than checkout date'}, status=400)
+            else:
+                return jwt_request.response({'message': 'Invalid date format Y-m-d'}, status=400)
             return f(*args, **kwargs)
         return decorated
     
@@ -57,6 +56,12 @@ class BookingController(http.Controller):
             # Extract and validate JWT token
             auth_header = request.httprequest.headers.get('Authorization')
             token = auth_header.split(" ")[1]
+            if request.env['jwt_access_token'].sudo().search([('token', '=', token)]):
+                access_token = request.env['jwt_access_token'].sudo().search([('token', '=', token)])
+                if access_token.is_expired:
+                    return jwt_request.response({'message': 'Token expired'}, status=401)
+            else:
+                return jwt_request.response({'message': 'Invalid token'}, status=401)
             uid = jwt_request.decode_token(token, SECRET_KEY)['user']
             user = request.env['res.users'].sudo().search([('id', '=', uid)])
             if not user:
