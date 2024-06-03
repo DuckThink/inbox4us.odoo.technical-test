@@ -111,6 +111,27 @@ Body:
 }
 ```
 
+**Return:**
+
+```bash
+{
+    "jsonrpc": "2.0",
+    "id": null,
+    "result": {
+        "success": true,
+        "code": 200,
+        "data": {
+            "user": {
+                "id": 62,
+                "email": "john@inbox4us.xyz",
+                "name": "John Doe"
+            },
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjAwMjg0NzMsImlhdCI6MTcxNzQzNjQ3MywidXNlciI6NjIsImxvZ2luIjoiam9obkBpbmJveDR1cy54eXoifQ.5c_Y8j2LKK9RTmz73593RwuGVroQSDlBs9LtP_SPv1w"
+        }
+    }
+}
+```
+
 ### Test API login:
 
 URL: yourlocalhost/api/auth/login
@@ -127,6 +148,27 @@ Body:
     "params": {
         "email": "john@inbox4us.xyz",
         "password": "password"
+    }
+}
+```
+
+**Return:**
+
+```bash
+{
+    "jsonrpc": "2.0",
+    "id": null,
+    "result": {
+        "success": true,
+        "code": 200,
+        "data": {
+            "user": {
+                "id": 62,
+                "email": "john@inbox4us.xyz",
+                "name": "John Doe"
+            },
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjAwMjg0OTcsImlhdCI6MTcxNzQzNjQ5NywidXNlciI6NjIsImxvZ2luIjoiam9obkBpbmJveDR1cy54eXoifQ.dER89lv_jPG9YyoTdfnkIpcEfjmN9vFxWHilKY9Cvug"
+        }
     }
 }
 ```
@@ -153,6 +195,47 @@ Body:
         "customer_id": 4,
         "checkin_date": "2022-01-01",
         "checkout_date": "2022-01-05"
+    }
+}
+```
+
+**Return:**
+
+```bash
+{
+    "jsonrpc": "2.0",
+    "id": null,
+    "result": {
+        "success": true,
+        "code": 201,
+        "data": {
+            "booking": {
+                "id": 16,
+                "customer_id": [
+                    4,
+                    "Nguyễn Đức Thịnh"
+                ],
+                "room_id": [
+                    2,
+                    "2"
+                ],
+                "check_in_date": "2022-01-01",
+                "check_out_date": "2022-01-05",
+                "total_amount": 400.0,
+                "display_name": "hotel.booking,16",
+                "create_uid": [
+                    62,
+                    "John Doe"
+                ],
+                "create_date": "2024-06-03 17:44:31",
+                "write_uid": [
+                    62,
+                    "John Doe"
+                ],
+                "write_date": "2024-06-03 17:44:31",
+                "__last_update": "2024-06-03 17:44:31"
+            }
+        }
     }
 }
 ```
