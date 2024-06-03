@@ -77,12 +77,18 @@ class BookingController(http.Controller):
             checkout_date = kwargs['checkout_date']
 
             # Create booking record
-            booking = request.env['hotel.booking'].sudo().create({
-                'room_id': room_id,
-                'customer_id': customer_id,
-                'check_in_date': checkin_date,
-                'check_out_date': checkout_date,
-            })
+            try:
+                booking = request.env['hotel.booking'].sudo().create({
+                    'room_id': room_id,
+                    'customer_id': customer_id,
+                    'check_in_date': checkin_date,
+                    'check_out_date': checkout_date,
+                })
+            except Exception as e:
+                _logger.error(str(e))
+                return jwt_request.response_500({
+                    'message': e.args[0]
+                })
 
             return jwt_request.response({
                 'booking': booking.read()[0]

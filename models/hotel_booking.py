@@ -38,11 +38,20 @@ class HotelBooking(models.Model):
     # When booking is created, set the room status to 'booked'
     @api.model
     def create(self, vals):
+        if datetime.strptime(vals['check_in_date'], '%Y-%m-%d').date() < datetime.now().date():
+            raise UserError('Check-in date must be greater than or equal to today')
         room = self.env['hotel.room'].browse(vals['room_id'])
         if room.status == 'booked':
             raise UserError('Room is not available')
         room.status = 'booked'
-        return super(HotelBooking, self).create(vals)            
+        return super(HotelBooking, self).create(vals)      
+
+    def write(self, vals):
+        if self.check_out_date < datetime.now().date():
+            self.room_id.status = 'available'
+        else:
+            self.room_id.status = 'booked'
+        return super(HotelBooking, self).write(vals)      
     
     # When booking is deleted, set the room status to 'available'
     def unlink(self):

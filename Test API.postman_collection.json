@@ -1,0 +1,89 @@
+{
+	"info": {
+		"_postman_id": "6bdc6ca2-6724-473c-8baa-6fea41124106",
+		"name": "Test API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "35947231"
+	},
+	"item": [
+		{
+			"name": "booking",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {}
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjAwNDIwNDAsImlhdCI6MTcxNzQ1MDA0MCwidXNlciI6NjYsImxvZ2luIjoiam9obkBpbmJveDR1cy54eXoifQ.dU07LApYjDzu16Jaa6W6QduLM3LKZBZrWtcegscH4sg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"params\": {\n        \"room_id\": 1,\n        \"customer_id\": 1,\n        \"checkin_date\": \"2024-06-05\",\n        \"checkout_date\": \"2024-06-06\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8069/api/bookings"
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"params\": {\n        \"email\": \"john@inbox4us.xyz\",\n        \"password\": \"password\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8069/api/auth/login"
+			},
+			"response": []
+		},
+		{
+			"name": "register",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"params\": {\n        \"name\": \"John Doe\",\n        \"email\": \"john@inbox4us.xyz\",\n        \"password\": \"password\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8069/api/auth/register"
+			},
+			"response": []
+		}
+	]
+}
