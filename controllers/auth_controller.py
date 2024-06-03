@@ -11,7 +11,7 @@ from odoo.addons.auth_signup.models.res_users import SignupError
 import logging
 _logger = logging.getLogger(__name__)
 
-SECRET_KEY = 'your_secret_key_here'
+SECRET_KEY = 'your_secret_key_here' # Change this to your secret key
 
 class AuthController(http.Controller):
 
@@ -22,17 +22,17 @@ class AuthController(http.Controller):
             params = set(kwargs.keys())
             required_params = set()
             if f.__name__ == 'register':
-                required_params = {'name', 'email', 'password'}
-            if f.__name__ == 'login':
-                required_params = {'email', 'password'}
-            if not required_params.issubset(params):
+                required_params = {'name', 'email', 'password'} # Required parameters for api register
+            if f.__name__ == 'login': 
+                required_params = {'email', 'password'} # Required parameters for api login
+            if not required_params.issubset(params): # Check if required parameters are provided
                 missing_params = required_params - params
                 return jwt_request.response({'message': 'Missing Parameters (%s)'%(', '.join(missing_params))}, status=400)
             for key in required_params:
-                if not kwargs[key]:
+                if not kwargs[key]: # Check if required parameters are empty
                     return jwt_request.response({'message': 'Parameter %s cannot be empty'%key}, status=400)
             if 'email' in required_params:
-                if not is_valid_email(kwargs['email']):
+                if not is_valid_email(kwargs['email']): # Check if email is valid
                     return jwt_request.response({'message': 'Invalid email address'}, status=400)
             return f(*args, **kwargs)
         return decorated
@@ -43,6 +43,7 @@ class AuthController(http.Controller):
         try:
             if request.env['res.users'].sudo().search([('login', '=', kwargs['email'])]):
                 return jwt_request.response(status=400, data={'message': 'Email address has been taken'})
+            """ Create portal user"""
             auth_signup = AuthSignupHome()
             qcontext = auth_signup.get_auth_signup_qcontext()
 
@@ -77,6 +78,7 @@ class AuthController(http.Controller):
                         jwt_request.response({'message': qcontext['error']}, status=400)
             
             if user_sudo:
+                """ Create jwt token and hotel customer corresponding to the portal user"""
                 token = jwt_request.create_token(user_sudo, SECRET_KEY)
                 request.env['hotel.customer'].sudo().create({
                     'email': user_sudo.email,
@@ -96,6 +98,7 @@ class AuthController(http.Controller):
     @http.route('/api/auth/login', type='json', auth='none', methods=['POST'], cors='*', csrf=False)
     @check_parameter
     def login(self, **kwargs):
+        """Authenticate login user and return jwt token"""       
         email, password = kwargs['email'], kwargs['password']
         token = jwt_request.login(email, password, SECRET_KEY)
         return jwt_request.response({

@@ -17,15 +17,16 @@ class BookingController(http.Controller):
         @wraps(f)
         def decorated(*args, **kwargs):
             params = set(kwargs.keys())
-            required_params = {'room_id', 'customer_id', 'checkin_date', 'checkout_date'}
-            if not required_params.issubset(params):
+            required_params = {'room_id', 'customer_id', 'checkin_date', 'checkout_date'} # Required parameters for api register
+            if not required_params.issubset(params): # Check if required parameters are provided
                 missing_params = required_params - params
                 return jwt_request.response({'message': 'Missing Parameters (%s)' % (', '.join(missing_params))}, status=400)
-            for key in required_params:
+            for key in required_params: # Check if required parameters are empty
                 if not kwargs[key]:
                     return jwt_request.response({'message': 'Parameter %s cannot be empty' % key}, status=400)
             room_id, customer_id, checkin_date, checkout_date = kwargs['room_id'], kwargs['customer_id'] \
                                                                     ,kwargs['checkin_date'], kwargs['checkout_date']
+            """Check parameters validity"""
             if not request.env['hotel.room'].sudo().search([('id', '=', room_id)]):
                 return jwt_request.response({'message': 'Invalid room id'}, status=400)
             if not request.env['hotel.customer'].sudo().search([('id', '=', customer_id)]):
@@ -56,20 +57,20 @@ class BookingController(http.Controller):
             # Extract and validate JWT token
             auth_header = request.httprequest.headers.get('Authorization')
             token = auth_header.split(" ")[1]
-            if request.env['jwt_access_token'].sudo().search([('token', '=', token)]):
+            if request.env['jwt_access_token'].sudo().search([('token', '=', token)]): # Check if token exists
                 access_token = request.env['jwt_access_token'].sudo().search([('token', '=', token)])
-                if access_token.is_expired:
+                if access_token.is_expired: # Check if token is expired
                     return jwt_request.response({'message': 'Token expired'}, status=401)
             else:
                 return jwt_request.response({'message': 'Invalid token'}, status=401)
-            uid = jwt_request.decode_token(token, SECRET_KEY)['user']
+            uid = jwt_request.decode_token(token, SECRET_KEY)['user'] # Get user id from token
             user = request.env['res.users'].sudo().search([('id', '=', uid)])
             if not user:
                 return jwt_request.response({'message': 'Invalid token'}, status=401)
 
             # Extract booking parameters
             room_id = kwargs['room_id']
-            if request.env['hotel.room'].sudo().search([('id', '=', room_id)]).status != 'available':
+            if request.env['hotel.room'].sudo().search([('id', '=', room_id)]).status != 'available': # Check if room is available
                 return jwt_request.response({'message': 'Room not available'}, status=400)
             customer_id = kwargs['customer_id']
             checkin_date = kwargs['checkin_date']
