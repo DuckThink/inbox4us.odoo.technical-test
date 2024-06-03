@@ -1,8 +1,12 @@
-from odoo import http
+from odoo import http, _
+import werkzeug
 from functools import wraps
 from odoo.http import request
 from ..jwt_request import jwt_request
 from ..util import is_valid_email
+from odoo.addons.auth_signup.controllers.main import AuthSignupHome
+from odoo.exceptions import UserError
+from odoo.addons.auth_signup.models.res_users import SignupError
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -21,8 +25,6 @@ class AuthController(http.Controller):
                 required_params = {'name', 'email', 'password'}
             if f.__name__ == 'login':
                 required_params = {'email', 'password'}
-            if f.__name__ == 'booking':
-                required_params = {'room_id', 'customer_id', 'checkin_date', 'checkout_date'}
             if not required_params.issubset(params):
                 missing_params = required_params - params
                 return jwt_request.response({'message': 'Missing Parameters (%s)'%(', '.join(missing_params))}, status=400)
@@ -32,9 +34,6 @@ class AuthController(http.Controller):
             if 'email' in required_params:
                 if not is_valid_email(kwargs['email']):
                     return jwt_request.response({'message': 'Invalid email address'}, status=400)
-            if {'checkin_date', 'checkout_date'}.issubset(required_params):
-                if kwargs['checkin_date'] > kwargs['checkout_date']:
-                    return jwt_request.response({'message': 'Checkin date must be less than checkout date'}, status=400)
             return f(*args, **kwargs)
         return decorated
     
@@ -44,18 +43,43 @@ class AuthController(http.Controller):
         try:
             if request.env['res.users'].sudo().search([('login', '=', kwargs['email'])]):
                 return jwt_request.response(status=400, data={'message': 'Email address has been taken'})
-            user = request.env['res.users'].sudo().create({
-                'login': kwargs['email'],
-                'password': kwargs['password'],
-                'name': kwargs['name'],
-                'email': kwargs['email'],
-                'company_id': request.env.ref('base.main_company').id,
-                'company_ids': [(4, request.env.ref('base.main_company').id)],
-            })
-            if user:
-                token = jwt_request.create_token(user, SECRET_KEY)
+            auth_signup = AuthSignupHome()
+            qcontext = auth_signup.get_auth_signup_qcontext()
+
+            if not qcontext.get('token') and not qcontext.get('signup_enabled'):
+                raise werkzeug.exceptions.NotFound()
+
+            if 'error' not in qcontext and request.httprequest.method == 'POST':
+                try:
+                    values = {
+                        'login': kwargs['email'],
+                        'password': kwargs['password'],
+                        'name': kwargs['name'],
+                        'email': kwargs['email']
+                    }
+                    if not values:
+                        raise UserError(_("Missing required fields."))
+                    auth_signup._signup_with_values(qcontext.get('token'), values)
+                    User = request.env['res.users']
+                    user_sudo = User.sudo().search(
+                        User._get_login_domain(values.get('login')), order=User._get_login_order(), limit=1
+                    )
+                except UserError as e:
+                    qcontext['error'] = e.args[0]
+                    jwt_request.response({'message': qcontext['error']}, status=400)
+                except (SignupError, AssertionError) as e:
+                    if request.env["res.users"].sudo().search([("login", "=", qcontext.get("login"))]):
+                        qcontext["error"] = _("Another user is already registered using this email address.")
+                        jwt_request.response({'message': qcontext['error']}, status=400)
+                    else:
+                        _logger.error("%s", e)
+                        qcontext['error'] = _("Could not create a new account.")
+                        jwt_request.response({'message': qcontext['error']}, status=400)
+                        
+            if user_sudo:
+                token = jwt_request.create_token(user_sudo, SECRET_KEY)
                 return jwt_request.response({
-                    'user': user.to_dict(),
+                    'user': user_sudo.to_dict(),
                     'token': token
                 })
         except Exception as e:
@@ -73,40 +97,4 @@ class AuthController(http.Controller):
             'user': request.env.user.to_dict(),
             'token': token,
         })
-    
-    @http.route('/api/auth/booking', type='json', auth='none', methods=['POST'], cors='*', csrf=False)
-    @check_parameter
-    def booking(self, **kwargs):
-        try:
-            # Extract and validate JWT token
-            auth_header = request.httprequest.headers.get('Authorization')
-            if not auth_header:
-                return jwt_request.response({'message': 'Authorization header missing'}, status=401)
-            token = auth_header.split(" ")[1]
-            user = jwt_request.decode_token(token, SECRET_KEY)
-            if not user:
-                return jwt_request.response({'message': 'Invalid token'}, status=401)
 
-            # Extract booking parameters
-            room_id = kwargs['room_id']
-            customer_id = kwargs['customer_id']
-            checkin_date = kwargs['checkin_date']
-            checkout_date = kwargs['checkout_date']
-
-            # Create booking record
-            booking = request.env['hotel.booking'].sudo().create({
-                'room_id': room_id,
-                'customer_id': customer_id,
-                'checkin_date': checkin_date,
-                'checkout_date': checkout_date,
-                'user_id': user.id,
-            })
-
-            return jwt_request.response({
-                'booking': booking.read()[0]
-            }, status=201)
-        except Exception as e:
-            _logger.error(str(e))
-            return jwt_request.response_500({
-                'message': 'Server error'
-            })

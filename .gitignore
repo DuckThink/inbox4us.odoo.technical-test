@@ -1,0 +1,16 @@
+# Ignore compiled files
+*.class
+*.o
+*.pyc
+
+# Ignore build artifacts
+/build
+/dist
+
+# Ignore IDE and editor files
+/.vscode
+/.idea
+
+# Ignore system files
+.DS_Store
+Thumbs.db

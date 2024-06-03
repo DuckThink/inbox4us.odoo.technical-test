@@ -17,3 +17,10 @@ class HotelBooking(models.Model):
             if booking.check_in_date and booking.check_out_date:
                 num_nights = (booking.check_out_date - booking.check_in_date).days
                 booking.total_amount = booking.room_id.price_per_night * num_nights
+
+    def unlink(self):
+        for booking in self:
+            room = booking.room_id
+            if room.status == 'booked':
+                room.status = 'available'
+        return super(HotelBooking, self).unlink()

@@ -245,6 +245,13 @@ class JwtRequest:
     def response_404(self, data={}):
         return self.response(data, 404)
     
+    def decode_token(self, token, secret_key):
+        return jwt.decode(
+                    token, 
+                    secret_key, 
+                    algorithms='HS256'
+                )
+    
     def sign_token(self, payload, secret_key):
         '''
         Generally sign a jwt token
@@ -266,8 +273,8 @@ class JwtRequest:
             payload = {
                 'exp': exp,
                 'iat': datetime.datetime.now(),
-                'sub': user.id,
-                'lgn': user.login,
+                'user': user.id,
+                'login': user.login,
             }
             token = self.sign_token(payload, secret_key)
             self.save_token(token, user.id, exp)
